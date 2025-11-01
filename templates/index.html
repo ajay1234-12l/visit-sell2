@@ -1,0 +1,92 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="card">
+  <h2>Start Visit Job</h2>
+
+  <div class="row">
+    <label>UID</label>
+    <input id="uid" placeholder="e.g. 1593717951">
+    <label>Visits needed</label>
+    <input id="target" type="number" placeholder="e.g. 5000">
+    <div class="row-btns">
+      <button id="btnCreate" class="primary">Create Task</button>
+      <button id="btnStart" class="accent">Start (frontend drive)</button>
+      <button id="btnStop" class="danger">Stop</button>
+    </div>
+  </div>
+
+  <div class="progress">
+    <div id="bar" class="bar" style="width:0%"></div>
+  </div>
+  <div id="meta" class="meta">Progress: 0% — Accumulated: 0 / 0</div>
+  <div id="extra" class="small"></div>
+  <div id="log" class="log"></div>
+  <div class="small">Tip: Run <code>/api/worker/run</code> via external pinger every {{CFG.SUGGESTED_PING_INTERVAL}}s for reliable background progress (Vercel is ephemeral).</div>
+</div>
+
+<script>
+let taskId = null;
+let frontendRun = false;
+let pollIntervalMs = 3000;
+
+function log(msg){ const L=document.getElementById('log'); L.innerText = new Date().toLocaleTimeString() + ' — ' + msg + "\n" + L.innerText; }
+
+document.getElementById('btnCreate').onclick = async ()=>{
+  const uid = document.getElementById('uid').value.trim();
+  const target = parseInt(document.getElementById('target').value || "0");
+  if (!uid || target<=0) { alert('Enter UID and positive target'); return; }
+  const fd = new URLSearchParams(); fd.append('uid', uid); fd.append('target', String(target));
+  const r = await fetch('/api/task/create', {method:'POST', body: fd});
+  const j = await r.json();
+  if (!j.ok) { alert('Create failed: ' + JSON.stringify(j)); return; }
+  taskId = j.task_id;
+  log('Created task: ' + taskId);
+  refreshOnce();
+};
+
+document.getElementById('btnStart').onclick = async ()=>{
+  if (!taskId) return alert('Create a task first');
+  if (frontendRun) return alert('Already running');
+  frontendRun = true;
+  // start loop: call /api/worker/run (server-side) then refresh status
+  while(frontendRun && taskId){
+    try {
+      const runRes = await fetch('/api/worker/run', {method:'POST'});
+      const runJson = await runRes.json();
+      log('Worker run: processed ' + runJson.processed);
+      await refreshOnce();
+      const t = await (await fetch('/api/task/' + taskId)).json();
+      if (t.status === 'completed' || t.status === 'stopped') {
+        log('Task ended: ' + t.status);
+        frontendRun = false; taskId = null; break;
+      }
+    } catch(e){
+      log('Error in frontend loop: ' + e);
+    }
+    await new Promise(res => setTimeout(res, pollIntervalMs));
+  }
+};
+
+document.getElementById('btnStop').onclick = async ()=>{
+  if (!taskId) return alert('No task');
+  await fetch('/api/task/' + taskId + '/stop', {method:'POST'});
+  log('Stop requested');
+  frontendRun = false;
+  taskId = null;
+};
+
+async function refreshOnce(){
+  if (!taskId) return;
+  const r = await fetch('/api/task/' + taskId);
+  if (!r.ok) return;
+  const j = await r.json();
+  const acc = j.accumulated || 0;
+  const tgt = j.target || 0;
+  const pct = tgt ? Math.min(100, Math.round((acc / tgt) * 10000) / 100) : 0;
+  document.getElementById('bar').style.width = pct + '%';
+  document.getElementById('meta').innerText = `Progress: ${pct}% — Accumulated: ${acc} / ${tgt}`;
+  const api = (j.logs && j.logs.length) ? j.logs[j.logs.length - 1].api : null;
+  if (api) document.getElementById('extra').innerText = `Player: ${api.PlayerNickname || ''} | TotalVisits: ${api.TotalVisits || ''} | Failed: ${api.FailedVisits || ''}`;
+}
+</script>
+{% endblock %}
