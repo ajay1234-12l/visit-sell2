@@ -1,0 +1,18 @@
+/* static/style.css */
+body { font-family: Inter, Arial, sans-serif; background: #041226; color: #e6f6ff; margin: 0; }
+.nav { display:flex; justify-content:space-between; align-items:center; padding:10px 18px; background: linear-gradient(90deg,#071226,#0b2a3b); color:#bfefff; }
+.nav .btn { background:#0ea5ff; color:#022; padding:6px 10px; border-radius:6px; margin-left:8px; text-decoration:none; }
+.main { padding:18px; display:flex; justify-content:center; }
+.card { width:820px; max-width:95%; background: linear-gradient(180deg,#061226,#0a2740); padding:18px; border-radius:10px; box-shadow:0 10px 30px rgba(0,0,0,0.6); }
+.center { max-width:420px; margin:0 auto; text-align:center; }
+input, select { width:100%; padding:10px; margin:8px 0; border-radius:8px; border:0; background:#082033; color:#cfefff; }
+button, .btn { padding:10px 14px; border-radius:8px; border:0; cursor:pointer; }
+.primary { background:#0ea5ff; color:#022; }
+.accent { background:#22c55e; color:#022; }
+.danger { background:#ef4444; color:#fff; }
+.progress { height:18px; background:#08324a; border-radius:8px; overflow:hidden; margin-top:10px; }
+.bar { height:100%; width:0%; background: linear-gradient(90deg,#00ff9e,#00a6ff); transition:width .3s; }
+.meta { margin-top:8px; color:#bfefff; font-size:14px; }
+.small { font-size:13px; color:#9fd8ff; margin-top:6px; }
+.log { background:#021726; padding:8px; border-radius:8px; margin-top:10px; color:#bfefff; font-size:12px; height:140px; overflow:auto; }
+.row-btns { display:flex; gap:8px; }
