@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="card center">
+  <h2>Login</h2>
+  <form method="post">
+    <input name="username" placeholder="Username" required>
+    <input name="password" placeholder="Password" type="password" required>
+    <button class="primary" type="submit">Login</button>
+  </form>
+  <p class="muted">Admin: {{ config.CFG.ADMIN_USER }} / {{ config.CFG.ADMIN_PASS }} (change in config)</p>
+</div>
+{% endblock %}
