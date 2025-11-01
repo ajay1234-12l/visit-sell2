@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="card">
+  <h2>Admin Dashboard</h2>
+  <div>
+    <label>Admin pass:</label>
+    <input id="apass" placeholder="admin pass">
+    <button id="btnLoad">Load Tasks</button>
+  </div>
+  <div style="margin-top:10px">
+    <label>Accum mode:</label>
+    <select id="modeSel">
+      <option value="add_reports">add_reports</option>
+      <option value="add_increase">add_increase</option>
+    </select>
+    <button id="setMode">Set Mode</button>
+  </div>
+  <pre id="out" style="white-space:pre-wrap; max-height:500px; overflow:auto;"></pre>
+</div>
+
+<script>
+document.getElementById('btnLoad').onclick = async ()=>{
+  const p = document.getElementById('apass').value;
+  const r = await fetch('/api/tasks?admin_pass=' + encodeURIComponent(p));
+  const j = await r.json();
+  document.getElementById('out').innerText = JSON.stringify(j, null, 2);
+};
+
+document.getElementById('setMode').onclick = async ()=>{
+  const p = document.getElementById('apass').value;
+  const mode = document.getElementById('modeSel').value;
+  const fd = new URLSearchParams(); fd.append('admin_pass', p); fd.append('mode', mode);
+  const r = await fetch('/api/admin/set_mode', {method:'POST', body: fd});
+  const j = await r.json();
+  alert(JSON.stringify(j));
+};
+</script>
+{% endblock %}
