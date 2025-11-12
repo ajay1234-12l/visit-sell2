@@ -11,7 +11,7 @@ CFG = {
     "TASKS_FILE": os.path.join(DEFAULT_DATA_DIR, "tasks.json"),
     "SETTINGS_FILE": os.path.join(DEFAULT_DATA_DIR, "settings.json"),
     # real visits API template
-    "VISIT_API_TEMPLATE": os.environ.get("VISIT_API_TEMPLATE", "http://visits-api-yash-ff.vercel.app/visit?uid={uid}&region=IND"),
+    "VISIT_API_TEMPLATE": os.environ.get("VISIT_API_TEMPLATE", "https://visit-api-by-digi.vercel.app/visit?uid={uid}&server_name=ind"),
     # default poll guidance (sec) — external pinger should call worker.run that often
     "SUGGESTED_PING_INTERVAL": int(os.environ.get("POLL_INTERVAL", "15")),
     # default accumulation mode: "add_reports" or "add_increase"
